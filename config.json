@@ -1,0 +1,9 @@
+{
+  "pdf_path": "inputs/paper.pdf",
+  "output_dir": "outputs/",
+  "lang": "ch",
+  "use_angle_cls": true,
+  "layout_analysis": true,
+  "table": true,
+  "ocr_order": true
+}

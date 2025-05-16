@@ -1,0 +1,8 @@
+.vscode/
+inputs/
+liter_source/
+markdown_out/
+outputs/
+venv/
+
+*.pyc
