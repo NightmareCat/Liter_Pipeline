@@ -42,6 +42,7 @@ def summarize_markdown(md_path: str, config: dict) -> list[str]:
     blocks = result_text.split("---") # type: ignore
     output_paths = []
 
+    n_block = 1
     for i, block in enumerate(blocks):
         block = block.strip()
         if len(block) < MIN_BLOCK_LENGTH:
@@ -49,9 +50,10 @@ def summarize_markdown(md_path: str, config: dict) -> list[str]:
             continue
         if not block:
             continue
-        out_path = output_dir / f"tech_{i+1}.md"
+        out_path = output_dir / f"tech_{n_block}.md"
         with open(out_path, "w", encoding="utf-8") as f:
             f.write(block)
         output_paths.append(str(out_path))
+        n_block +=1
 
     return output_paths
