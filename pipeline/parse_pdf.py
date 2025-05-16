@@ -7,9 +7,8 @@ from paddleocr import PPStructure, draw_structure_result
 from utils.table_utils import html_table_to_markdown
 from utils.text_utils import clean_text, auto_title_format, smart_paragraph_split
 
-def parse_pdf_to_markdown(config_path: str) -> str:
-    with open(config_path, "r", encoding="utf-8") as f:
-        config = json.load(f)
+
+def parse_pdf_to_markdown(config: dict) -> str:
 
     pdf_path = config["pdf_path"]
     output_dir = Path(config["output_dir"])
