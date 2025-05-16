@@ -1,6 +1,6 @@
 from pathlib import Path
 from pipeline.parse_pdf import parse_pdf_to_markdown
-# from pipeline.summarize_with_deepseek import summarize_markdown
+from pipeline.summarize_with_deepseek import summarize_markdown
 
 import shutil
 
@@ -39,32 +39,46 @@ def run_stage1_pdf_to_md():
 def run_stage2_md_to_summary():
     md_root = Path("markdown_out")
     emb_root = Path("embedding_out")
-    ensure_dir(emb_root)
 
     for subdir in md_root.iterdir():
         if not subdir.is_dir():
             continue
 
         folder_name = subdir.name
-        if (emb_root / folder_name).exists():
+        md_file = subdir / "output.md"
+        out_dir = emb_root / folder_name
+
+        if out_dir.exists():
             print(f"[跳过] 已总结过：{folder_name}")
             continue
-
-        md_file = subdir / "output.md"
         if not md_file.exists():
             print(f"[警告] 缺失 Markdown 文件：{md_file}")
             continue
 
         print(f"[STEP 2] 总结 Markdown via DeepSeek: {folder_name}")
-        ensure_dir(emb_root / folder_name)
 
-        # summary_text = summarize_markdown(str(md_file), api_config)
-        # with open(emb_root / folder_name / "summary.txt", "w", encoding="utf-8") as f:
-        #     f.write(summary_text)
+        # ✅ 动态传入配置（不写入 config.json）
+        summarize_cfg = {
+            "model": "deepseek-chat",
+            "prompt_template": (
+                "请你从以下论文内容中提取出所有具有完整描述的“技术要点”，并逐个输出，格式如下：\\n\\n"
+                "## 技术要点 N\\n"
+                "### 技术背景\\n……\\n"
+                "### 技术原理\\n……\\n"
+                "### 验证方案\\n……\\n"
+                "### 实现效果\\n……\\n"
+                "### 对应章节/页码（如可判断）\\n……\\n\\n"
+                "要求：所有内容需基于原文，适度总结，不添加虚构信息； 若无法判断某项，请保留标题，写“未明确提及”；"
+                "所有内容请使用Markdown格式,多项间用“---”分隔。"
+            ),
+            "output_dir": str(out_dir)
+        }
+
+        summarize_markdown(str(md_file), summarize_cfg)
 
 def main():
     run_stage1_pdf_to_md()
-    # run_stage2_md_to_summary()
+    run_stage2_md_to_summary()
 
 if __name__ == "__main__":
     main()

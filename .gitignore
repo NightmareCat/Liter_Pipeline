@@ -1,6 +1,8 @@
 .vscode/
 venv/
 
+.env
+
 *.pyc
 *.md
 *.jpg
