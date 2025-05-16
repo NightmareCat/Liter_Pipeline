@@ -31,8 +31,8 @@ def parse_pdf_to_markdown(config: dict) -> str:
         img_cv = cv2.cvtColor(img_np, cv2.COLOR_RGB2BGR)
 
         results = ocr_engine(img_cv)
-        structure_img = draw_structure_result(img_cv, results, font_path="simfang.ttf")
-        cv2.imwrite(str(output_dir / f"page_{idx+1}_structure.jpg"), structure_img)
+        # structure_img = draw_structure_result(img_cv, results, font_path="simfang.ttf")
+        # cv2.imwrite(str(output_dir / f"page_{idx+1}_structure.jpg"), structure_img)
 
         text_blocks = []
         for region in results:
