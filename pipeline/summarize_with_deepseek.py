@@ -1,8 +1,9 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-import openai
+from openai import OpenAI
 
+MIN_BLOCK_LENGTH = 100
 load_dotenv()  # 从.env文件中读取环境变量
 
 def summarize_markdown(md_path: str, config: dict) -> list[str]:
@@ -20,7 +21,7 @@ def summarize_markdown(md_path: str, config: dict) -> list[str]:
     if not api_key:
         raise ValueError("❌ 未提供 DeepSeek API Key，请设置 config['deepseek_api_key'] 或 .env 文件")
 
-    openai.api_key = api_key
+    client = OpenAI(api_key=api_key, base_url="https://api.deepseek.com/v1")
 
     with open(md_path, "r", encoding="utf-8") as f:
         content = f.read()
@@ -28,22 +29,24 @@ def summarize_markdown(md_path: str, config: dict) -> list[str]:
     prompt = config.get("prompt_template", "")
     full_prompt = prompt + "\n\n" + content
 
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model=config.get("model", "deepseek-chat"),
         messages=[{"role": "user", "content": full_prompt}],
         temperature=0.5,
     )
 
-    result_text = response["choices"][0]["message"]["content"]
+    result_text = response.choices[0].message.content
     output_dir = Path(config["output_dir"])
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # 分隔多个技术要点
-    blocks = result_text.split("---")
+    blocks = result_text.split("---") # type: ignore
     output_paths = []
 
     for i, block in enumerate(blocks):
         block = block.strip()
+        if len(block) < MIN_BLOCK_LENGTH:
+            # print(f"[跳过] tech_{i+1}.md 内容过短（{len(block)} 字符）")
+            continue
         if not block:
             continue
         out_path = output_dir / f"tech_{i+1}.md"

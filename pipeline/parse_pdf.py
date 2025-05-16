@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 from pathlib import Path
 from pdf2image import convert_from_path
-from paddleocr import PPStructure, draw_structure_result
+from paddleocr import PPStructure, draw_structure_result # type: ignore
 from utils.table_utils import html_table_to_markdown
 from utils.text_utils import clean_text, auto_title_format, smart_paragraph_split
 
