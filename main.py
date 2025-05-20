@@ -1,7 +1,9 @@
 from pathlib import Path
-from pipeline.parse_pdf import parse_pdf_to_markdown
+# from pipeline.parse_pdf import parse_pdf_to_markdown
 from pipeline.summarize_with_deepseek import summarize_markdown
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import subprocess
+import shutil
 
 path_liter = Path("liter_source")       # 文档目录
 path_markdown = Path("markdown_out")    # MD目录
@@ -37,7 +39,59 @@ def run_stage1_pdf_to_md():
             "save_visual": False
         }
 
-        parse_pdf_to_markdown(config)
+        # parse_pdf_to_markdown(config)
+        
+def run_stage1_pdf_to_md_magic_pdf():
+    source_dir = Path("liter_source")
+    output_dir = Path("markdown_out")
+
+    pdf_files = list(source_dir.glob("*.pdf"))
+    print(f"[MagicPDF] 检测到 {len(pdf_files)} 个PDF文件...")
+
+    for pdf_path in pdf_files:
+        pdf_stem = pdf_path.stem
+        target_dir = output_dir / pdf_stem
+        final_md_path = target_dir / f"{pdf_stem}.md"
+
+        if final_md_path.exists():
+            print(f"[MagicPDF] 已存在，跳过：{final_md_path}")
+            continue
+
+        target_dir.mkdir(parents=True, exist_ok=True)
+
+        cmd = [
+            "magic-pdf",
+            "-p", str(pdf_path),
+            "--output-dir", str(target_dir)
+        ]
+
+        print(f"[MagicPDF] 处理中：{pdf_path.name}")
+        try:
+            subprocess.run(cmd, check=True)
+            print(f"[MagicPDF] ✅ 处理完成，开始整理文件结构...")
+
+            # 获取magic-pdf嵌套路径
+            nested_auto_dir = target_dir / pdf_stem / "auto"
+            if not nested_auto_dir.exists():
+                print(f"[MagicPDF] ⚠ 未找到预期的输出目录：{nested_auto_dir}")
+                continue
+
+            # 遍历并复制 auto/ 下的所有内容
+            for item in nested_auto_dir.iterdir():
+                dest_path = target_dir / item.name
+                if item.is_file():
+                    shutil.copy2(item, dest_path)
+                elif item.is_dir():
+                    dest_path.mkdir(exist_ok=True)
+                    for subitem in item.iterdir():
+                        shutil.copy2(subitem, dest_path / subitem.name)
+                        
+            shutil.rmtree(target_dir / pdf_stem) #复制后删除原auto目录
+            print(f"[MagicPDF] ✅ 文件整理完成：{pdf_stem}")
+
+        except subprocess.CalledProcessError as e:
+            print(f"[MagicPDF] ❌ 处理失败：{pdf_path.name}")
+            print(e)
 
 def run_stage2_md_to_summary():
     markdown_root = path_markdown
@@ -76,7 +130,7 @@ def run_stage2_md_to_summary():
                     "要求:"
                     "1.所有内容需基于原文，适度总结，不添加虚构信息；"
                     "2.若无法判断某项，请保留标题，写“未明确提及”；"
-                    "3.除名称外，每一项输出尤其是技术原理要求尽量详尽，描述清楚;"
+                    "3.除技术名称外，每一项输出尤其是技术原理要求尽量详尽，描述清楚，技术原理要求不少于300字;"
                     "4.技术原理部分需要尽量包含设计模型、依赖技术、方案的适用性与局限性、原理推导的诸多核心公式、预期解决问题等,如没有满足要求的描述可以跳过"
                     "5.当涉及到引用文献时,尽量将引用文献的标题也写出;"
                     "6.原理描述尽量使用公式进行描述,所用latex公式、变量均使用'$'包起来以满足latex输出格式,每个$格式中不要包含无关文字;"
@@ -100,8 +154,9 @@ def run_stage2_md_to_summary():
                 print(f"[错误] 总结失败：{e}")
 
 def main():
-    run_stage1_pdf_to_md()
-    run_stage2_md_to_summary()
+    # run_stage1_pdf_to_md() #使用基础OCR
+    run_stage1_pdf_to_md_magic_pdf()  # 使用 magic-pdf
+    # run_stage2_md_to_summary()
 
 if __name__ == "__main__":
     main()

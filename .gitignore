@@ -1,9 +1,12 @@
 .vscode/
 venv/
+temp/
 
 .env
 
-markdown_out/*.json
+markdown_out/**/*.json
+
+test.py
 
 *.pyc
 *.md
