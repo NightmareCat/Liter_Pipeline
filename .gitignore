@@ -3,7 +3,10 @@ venv/
 
 .env
 
+markdown_out/*.json
+
 *.pyc
 *.md
 *.jpg
 *.pdf
+*.png
