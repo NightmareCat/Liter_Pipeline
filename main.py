@@ -1,13 +1,20 @@
 from pathlib import Path
 # from pipeline.parse_pdf import parse_pdf_to_markdown
 from pipeline.summarize_with_deepseek import summarize_markdown
+from pipeline.summarize_with_qwen_long import upload_and_summarize_pdf
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from log_init import setup_logger 
+from prompts import pdf_analyse_prompts
 import subprocess
 import shutil
+import os
 
 path_liter = Path("liter_source")       # 文档目录
 path_markdown = Path("markdown_out")    # MD目录
 path_embedding = Path("embedding_out")  # embedding目录
+path_embedding_qwen  = Path("embedding_qwen_long") # embedding目录
+
+logger = setup_logger(__name__)  # 初始化log信息
 
 def ensure_dir(path: Path):
     path.mkdir(parents=True, exist_ok=True)
@@ -21,10 +28,10 @@ def run_stage1_pdf_to_md():
         folder_name = pdf.stem
         target_folder = out_dir / folder_name
         if target_folder.exists():
-            print(f"[跳过] 已处理过：{folder_name}")
+            logger.warning(f"[跳过] 已处理过：{folder_name}")
             continue
 
-        print(f"[STEP 1] 处理 PDF → Markdown: {folder_name}")
+        logger.info(f"[STEP 1] 处理 PDF → Markdown: {folder_name}")
         ensure_dir(target_folder)
 
         # 生成 config dict
@@ -118,25 +125,7 @@ def run_stage2_md_to_summary():
             #  动态传入配置（不写入 config.json）
             summarize_cfg = {
                 "model": "deepseek-chat",
-                "prompt_template": (
-                    "请你从以下论文内容中提取出所有具有完整描述的“技术要点”，并逐个输出，格式如下：\\n\\n"
-                    "## 技术要点 N\\n"
-                    "### 技术名称\\n……\\n"
-                    "### 技术背景\\n……\\n"
-                    "### 技术原理\\n……\\n"
-                    "### 验证方案\\n……\\n"
-                    "### 实现效果\\n……\\n"
-                    "### 对应章节/页码（如可判断）\\n……\\n\\n"
-                    "要求:"
-                    "1.所有内容需基于原文，适度总结，不添加虚构信息；"
-                    "2.若无法判断某项，请保留标题，写“未明确提及”；"
-                    "3.除技术名称外，每一项输出尤其是技术原理要求尽量详尽，描述清楚，技术原理要求不少于300字;"
-                    "4.技术原理部分需要尽量包含设计模型、依赖技术、方案的适用性与局限性、原理推导的诸多核心公式、预期解决问题等,如没有满足要求的描述可以跳过"
-                    "5.当涉及到引用文献时,尽量将引用文献的标题也写出;"
-                    "6.原理描述尽量使用公式进行描述,所用latex公式、变量均使用'$'包起来以满足latex输出格式,每个$格式中不要包含无关文字;"
-                    "7.需要有完整的技术原理——验证方案——实现效果的才可看做为一个完整的技术要点，否则不输出。"
-                    "8.所有内容请使用Markdown格式,多项间用“---”分隔。"
-                ),
+                "prompt_template": pdf_analyse_prompts,
                 "output_dir": str(out_dir)
             }
 
@@ -153,10 +142,47 @@ def run_stage2_md_to_summary():
             except Exception as e:
                 print(f"[错误] 总结失败：{e}")
 
+
+def run_stage12_pdf_to_summary():
+    source_dir = path_liter
+    target_root = path_embedding_qwen
+    prompt = pdf_analyse_prompts
+    task_num = 8 # 设置最大线程数（你有20线程，但I/O绑定任务建议使用8-12个）
+    
+    # 获取所有未处理的 PDF 文件
+    tasks = []
+    for pdf_path in source_dir.glob("*.pdf"):
+        pdf_name = pdf_path.stem
+        target_dir = target_root / pdf_name
+        if (target_dir / "summary.md").exists():
+            logger.warning(f"[跳过] {pdf_name} 已存在摘要，跳过处理。")
+            continue
+        tasks.append((pdf_path, target_dir))
+
+    logger.info(f"[计划处理] 共需处理 {len(tasks)} 个 PDF 文件。\n")
+
+   
+    max_workers = min(task_num, os.cpu_count())
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {
+            executor.submit(upload_and_summarize_pdf, pdf_path, target_dir, prompt): pdf_path.name
+            for pdf_path, target_dir in tasks
+        }
+
+        for future in as_completed(futures):
+            pdf_name = futures[future]
+            try:
+                future.result()
+                logger.info(f"[完成] {pdf_name} 摘要生成成功。\n")
+            except Exception as e:
+                logger.error(f"[错误] 处理 {pdf_name} 时出错：{e}\n")
+
 def main():
     # run_stage1_pdf_to_md() #使用基础OCR
-    run_stage1_pdf_to_md_magic_pdf()  # 使用 magic-pdf
-    # run_stage2_md_to_summary()
-
+    # run_stage1_pdf_to_md_magic_pdf()  # 使用 magic-pdf
+    # run_stage2_md_to_summary() #使用 Deepseek 进行语义压缩
+    run_stage12_pdf_to_summary() #使用 Qwen long 印象pdf语义压缩
+    
 if __name__ == "__main__":
     main()
