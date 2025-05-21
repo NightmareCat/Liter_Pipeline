@@ -157,13 +157,12 @@ def run_stage12_pdf_to_summary():
         pdf_name = pdf_path.stem
         target_dir = target_root / pdf_name
         if (target_dir / "summary.md").exists():
-            logger.warning(f"[跳过] {pdf_name} 已存在摘要，跳过处理。")
+            # logger.warning(f"[跳过] {pdf_name} 已存在摘要，跳过处理。")
             continue
         tasks.append((pdf_path, target_dir))
 
     logger.info(f"[计划处理] 共需处理 {len(tasks)} 个 PDF 文件。\n")
 
-   
     max_workers = min(task_num, os.cpu_count())
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:

@@ -1,4 +1,4 @@
-# prompts/technical.py
+# prompts.py
 """存储技术要点提取相关的prompts"""
 
 pdf_analyse_prompts = """

@@ -18,7 +18,7 @@ def upload_and_summarize_pdf(pdf_path: Path, output_dir: Path, prompt: str):
     file_id = file_object.id
 
     messages = [
-        {'role': 'system', 'content': '你是一个具有通信领域专业背景的研究助手'},
+        {'role': 'system', 'content': '你是一个具有通信领域专业背景的研究助手，请你参考专业知识协助我进行文献整理。'},
         {'role': 'system', 'content': f'fileid://{file_id}'},
         {'role': 'user', 'content': prompt}
     ]
