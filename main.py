@@ -3,6 +3,8 @@ from pathlib import Path
 from pipeline.summarize_with_deepseek import summarize_markdown
 from pipeline.summarize_with_qwen_long import upload_and_summarize_pdf
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from pipeline.run_embedding_qwen import run_embedding_on_folder
+
 from log_init import setup_logger 
 from prompts import pdf_analyse_prompts
 import subprocess
@@ -183,6 +185,7 @@ def main():
     # run_stage1_pdf_to_md_magic_pdf()  # 使用 magic-pdf
     # run_stage2_md_to_summary() #使用 Deepseek 进行语义压缩
     run_stage12_pdf_to_summary() #使用 Qwen long 印象pdf语义压缩
+    run_embedding_on_folder(path_embedding_qwen)
     
 if __name__ == "__main__":
     main()
