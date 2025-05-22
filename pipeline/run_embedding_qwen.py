@@ -83,8 +83,15 @@ def run_embedding_on_folder(root_dir: Path):
 
                     output_data = {
                         "folder": subdir.name,
-                        "text": text[:200],  # 前200字符预览
-                        "embedding": embedding
+                        "text": text[:500],
+                        "embeddings": [  # 每个段落的嵌入及对应原文
+                            {
+                                "chunk_index": i,
+                                "text": chunk,
+                                "embedding": vec
+                            }
+                            for i, (chunk, vec) in enumerate(zip(trimmed_chunks, embedding_list))
+                        ]
                     }
 
                     output_path = root_dir / f"{subdir.name}.json"

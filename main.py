@@ -183,8 +183,8 @@ def main():
     # run_stage1_pdf_to_md() #使用基础OCR
     # run_stage1_pdf_to_md_magic_pdf()  # 使用 magic-pdf
     # run_stage2_md_to_summary() #使用 Deepseek 进行语义压缩
-    run_stage12_pdf_to_summary() #使用 Qwen long 印象pdf语义压缩
-    run_embedding_on_folder(path_embedding_qwen)
+    run_stage12_pdf_to_summary() #使用 Qwen long 进行pdf信息压缩
+    run_embedding_on_folder(path_embedding_qwen) #使用 Qwen embeddingv3模型对每个知识点语义向量化处理
     
 if __name__ == "__main__":
     main()
