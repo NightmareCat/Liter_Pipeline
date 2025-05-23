@@ -40,15 +40,15 @@ def research_sel():
 
     return selected
 
-def divideMD(selected):
+def divideMD(selected, Research_object_tmp):
     # 输出目录：research_output/20250521
     today = datetime.today().strftime("%m%d-%H%M")
-    output_root = Path("research_output") / (today + Research_object)
+    output_root = Path("research_output") / (today + Research_object_tmp)
     output_root.mkdir(parents=True, exist_ok=True)
     
     pdf_directory = Path("liter_source")
     
-    summarize_all_documents(selected, pdf_directory, output_dir = output_root, R_object =  Research_object, max_workers = 10)
+    summarize_all_documents(selected, pdf_directory, output_dir = output_root, R_object =  Research_object_tmp, max_workers = 10)
         
     return  output_root
 
@@ -92,7 +92,7 @@ def summarize_folder_to_report(folder_path: Path, research_topic: str):
 if __name__ == '__main__':
 
     selected = research_sel()   #找到最相关的K篇文章，手动选择其中的N篇
-    output_root = divideMD(selected)   #将N篇文章输出结构化结果
+    output_root = divideMD(selected,Research_object)   #将N篇文章输出结构化结果
 
     # output_root = Path('.\\research_output\\0522-1449')
     summarize_folder_to_report(output_root , Research_object)

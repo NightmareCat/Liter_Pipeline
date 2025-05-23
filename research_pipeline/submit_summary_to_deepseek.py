@@ -33,7 +33,7 @@ def submit_summary_to_deepseek(Research_object: str, markdown_chunks: List[str])
         请根据上述内容输出调研报告，结构与格式要求如下：
         ---
             """
-    user_prompt = user_prompt + final_prompt
+    user_prompt = user_prompt + final_prompt.format(Research_object=Research_object)
 
     # 发起 API 请求
     completion = client.chat.completions.create(
@@ -44,4 +44,4 @@ def submit_summary_to_deepseek(Research_object: str, markdown_chunks: List[str])
         ]
     )
 
-    return completion.choices[0].message.content
+    return completion.choices[0].message.content # type: ignore

@@ -163,7 +163,7 @@ def run_stage12_pdf_to_summary():
 
     logger.info(f"[计划处理] 共需处理 {len(tasks)} 个 PDF 文件。\n")
 
-    max_workers = min(task_num, os.cpu_count())
+    max_workers = min(task_num, os.cpu_count()) # type: ignore
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = {

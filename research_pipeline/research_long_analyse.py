@@ -40,7 +40,7 @@ def process_single_pdf(document_name: str, pdf_dir: Path ,output_root:Path,R_obj
             messages=[
                 {'role': 'system', 'content': '你是一个具有通信领域专业背景的研究助手，请你参考专业知识协助我进行文献整理'},
                 {'role': 'system', 'content': f'fileid://{file_id}'},
-                {'role': 'user', 'content': devide_prompt}
+                {'role': 'user', 'content': devide_prompt.format(Research_object=Research_object)}
             ],
             stream=True,
             stream_options={"include_usage": True}
