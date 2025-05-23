@@ -1,7 +1,7 @@
 
 from pathlib import Path
 from datetime import datetime
-import os
+# import os
 import questionary
 from log_init import setup_logger 
 from research_pipeline.research_long_analyse import summarize_all_documents
@@ -10,7 +10,7 @@ from research_pipeline.submit_summary_to_qwen import submit_summary_to_qwen
 from research_pipeline.submit_summary_to_deepseek import submit_summary_to_deepseek
 
 database_dir = "embedding_qwen_long"   #选择使用的二级处理文献库
-Research_object = '提升弱场下终端的接入成功率' 
+Research_object = '在卫星通信系统中的信号处理优化方案' 
 top_k = 10   #找到n篇最相关文章
 summary_model = 2 #1-qwen 2-deepseek
 
