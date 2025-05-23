@@ -43,12 +43,12 @@ def research_sel():
 def divideMD(selected):
     # 输出目录：research_output/20250521
     today = datetime.today().strftime("%m%d-%H%M")
-    output_root = Path("research_output") / today
+    output_root = Path("research_output") / (today + Research_object)
     output_root.mkdir(parents=True, exist_ok=True)
     
     pdf_directory = Path("liter_source")
     
-    summarize_all_documents(selected, pdf_directory, output_dir = output_root, R_object =  Research_object, max_workers=8)
+    summarize_all_documents(selected, pdf_directory, output_dir = output_root, R_object =  Research_object, max_workers = 10)
         
     return  output_root
 

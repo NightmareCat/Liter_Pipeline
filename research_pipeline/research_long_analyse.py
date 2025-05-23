@@ -26,11 +26,11 @@ def process_single_pdf(document_name: str, pdf_dir: Path ,output_root:Path,R_obj
     pdf_path = pdf_dir / f"{document_name}.pdf"
     if not pdf_path.exists():
         logger.error(f"[跳过] 文件不存在: {pdf_path}")
-        return
+        return ' '
 
     try:
         # 上传 PDF 文件
-        file_obj = client.files.create(file=pdf_path, purpose="file-extract")
+        file_obj = client.files.create(file=pdf_path, purpose="file-extract") # type: ignore
         file_id = file_obj.id
         logger.info(f"[上传成功] {document_name} → file-id: {file_id}")
 
