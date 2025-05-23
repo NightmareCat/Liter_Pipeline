@@ -179,6 +179,7 @@ def run_stage12_pdf_to_summary():
             except Exception as e:
                 logger.error(f"[错误] 处理 {pdf_name} 时出错：{e}\n")
 
+
 def main():
     # run_stage1_pdf_to_md() #使用基础OCR
     # run_stage1_pdf_to_md_magic_pdf()  # 使用 magic-pdf

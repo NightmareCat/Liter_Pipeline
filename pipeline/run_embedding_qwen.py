@@ -83,7 +83,7 @@ def run_embedding_on_folder(root_dir: Path):
 
                     output_data = {
                         "folder": subdir.name,
-                        "text": text[:500],
+                        "text": text,#[:500],
                         "embeddings": [  # 每个段落的嵌入及对应原文
                             {
                                 "chunk_index": i,
