@@ -82,17 +82,23 @@ def summarize_folder_to_report(folder_path: Path, research_topic: str):
     elif summary_model == 2:
         logger.info('正在使用Deepseek v3模型进行总结')
         report = submit_summary_to_deepseek(research_topic, markdown_contents)
-        
+     
+    report = report.replace("']['", "']\['")  #解决typora的渲染问题
+   
     # 输出报告
-    output_path = folder_path / (Research_object+"——综合调研报告.md")
+    output_path = folder_path / (research_topic+"——综合调研报告.md")
     output_path.write_text(report, encoding="utf-8")
     logger.info(f"✅ 报告已生成：{output_path}")
     
 
 if __name__ == '__main__':
 
-    selected = research_sel()   #找到最相关的K篇文章，手动选择其中的N篇
-    output_root = divideMD(selected,Research_object)   #将N篇文章输出结构化结果
-
-    # output_root = Path('.\\research_output\\0522-1449')
+    process_trigger = 2
+    if process_trigger == 1:
+        selected = research_sel()   #找到最相关的K篇文章，手动选择其中的N篇
+        output_root = divideMD(selected,Research_object)   #将N篇文章输出结构化结果
+    elif process_trigger == 2:
+        output_root = Path('.\\research_output\\0526-1329提升卫星系统的接入成功率')
+        Research_object = "提升卫星系统的接入成功率"
+        
     summarize_folder_to_report(output_root , Research_object)

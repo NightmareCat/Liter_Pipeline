@@ -44,4 +44,4 @@ def submit_summary_to_qwen(Research_object: str, markdown_chunks: List[str]) -> 
         ]
     )
 
-    return completion.choices[0].message.content
+    return completion.choices[0].message.content # type: ignore
