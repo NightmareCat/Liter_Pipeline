@@ -7,14 +7,12 @@ git clone https://github.com/NightmareCat/Liter_Pipeline.git
 ```
 
 环境配置
-
+- 如需要本地OCR部署，需要通过Anaconda配置MinerU环境
 - 安装配置Python环境，推荐3.10.x
 
 ```bash
 pip install -r requirements.txt
 ```
-
-如需要本地OCR部署，需要通过Anaconda配置MinerU环境
 
 - 本地环境配置
 
