@@ -41,7 +41,7 @@ def upload_and_summarize_pdf(pdf_path: Path, output_dir: Path, prompt: str):
 
     logger.info(f"[Qwen] Generating summary for {pdf_path.name} ...")
     completion = client.chat.completions.create(
-        model="qwen-long-latest"
+        model = "qwen-long-latest",
         messages=messages, # type: ignore
         stream=True,
         stream_options={"include_usage": True}

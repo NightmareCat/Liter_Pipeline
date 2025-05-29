@@ -93,6 +93,7 @@ def summarize_folder_to_report(folder_path: Path, research_topic: str):
 
 if __name__ == '__main__':
 
+    #手动操作
     process_trigger = 2
     if process_trigger == 1:
         selected = research_sel()   #找到最相关的K篇文章，手动选择其中的N篇

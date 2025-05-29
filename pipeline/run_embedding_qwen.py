@@ -9,12 +9,14 @@ from tqdm import tqdm
 from openai import OpenAI
 from dotenv import load_dotenv
 from log_init import setup_logger 
+from pipeline.get_embedding_bgem3 import get_embedding_bge_m3
 
 load_dotenv()
 logger = setup_logger(__name__)  # 初始化log信息
 
 MAX_TOKENS = 8192
 MAX_LINES = 10
+Model_select = 2 # 1-qwen embedding3  2- BGE-M3
 
 client = OpenAI(
     api_key=os.getenv("QWEN_API_KEY"),
@@ -77,9 +79,13 @@ def run_embedding_on_folder(root_dir: Path):
                     # 3. 最多取前 10 段，多余的合并进最后一段
                     if len(trimmed_chunks) > MAX_LINES:
                         trimmed_chunks = trimmed_chunks[:MAX_LINES - 1] + ['\n'.join(trimmed_chunks[MAX_LINES - 1:])]
+                    if Model_select == 1:
+                        embedding_list = get_qwen_embedding(trimmed_chunks)
+                    elif Model_select == 2:
+                        embedding_tensor = get_embedding_bge_m3(trimmed_chunks)
+                        embedding_list = embedding_tensor.cpu().tolist()
 
-                    embedding_list = get_qwen_embedding(trimmed_chunks)
-                    embedding = np.mean(embedding_list, axis=0).tolist()
+                    # embedding = np.mean(embedding_list, axis=0).tolist()  # 块之间做平均，舍弃
 
                     output_data = {
                         "folder": subdir.name,

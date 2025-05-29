@@ -7,8 +7,10 @@ from pathlib import Path
 from openai import OpenAI
 from dotenv import load_dotenv
 from typing import List, Tuple
+from pipeline.get_embedding_bgem3 import get_embedding_bge_m3
 
 load_dotenv()
+Embedding_Model_select = 2 # 1-qwen embedding3  2- BGE-M3
 
 client = OpenAI(
     api_key=os.getenv("QWEN_API_KEY"),
@@ -58,6 +60,12 @@ def search_similar(query: str, data_folder: str, top_k: int = 5) -> List[dict]:
     每个结果包含：论文名、相似度、最相关段落。
     """
     query_vec = get_query_embedding(query)
+    if Embedding_Model_select == 1:
+        query_vec = get_query_embedding(query)
+    elif Embedding_Model_select == 2:
+        embedding_tensor = get_embedding_bge_m3(query)
+        query_vec = embedding_tensor.cpu().tolist()
+    
     papers = load_all_embeddings(Path(data_folder))
 
     scored = []

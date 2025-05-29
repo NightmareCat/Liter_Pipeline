@@ -1,12 +1,13 @@
 # streamlit_main.py
-
-import streamlit as st
 import os
+os.environ["STREAMLIT_WATCHER_TYPE"] = "none"
+import streamlit as st
 from pathlib import Path
 from research_pipeline.search_similar_papers import search_similar
 from research_main import summarize_folder_to_report,divideMD
 
 PDF_DIR = "./liter_source"
+
 
 # 页面配置
 st.set_page_config(page_title="相似论文搜索", layout="wide")
