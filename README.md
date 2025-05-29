@@ -43,3 +43,12 @@ pip install -r requirements.txt
       ```bash
       pip install --no-index --find-links=packages -r requirements.txt
       ```
+## 使用说明
+### 数据库分支
+```python
+database_main.py
+```
+### 检索数据库（WebUI）
+```bash
+streamlit run steamlit_main.py
+````
