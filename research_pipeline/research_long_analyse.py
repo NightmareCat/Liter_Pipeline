@@ -10,7 +10,7 @@ from log_init import setup_logger
 
 logger = setup_logger(__name__)  # 初始化log信息
 
-def process_single_pdf(document_name: str, pdf_dir: Path ,output_root:Path,R_object:str) -> str:
+def process_single_pdf(document_name: str, pdf_dir: Path, output_root: Path, R_object: str) -> str:
     """
     对单个 PDF 进行上传、总结，并输出 Markdown 文件。
 
@@ -24,7 +24,7 @@ def process_single_pdf(document_name: str, pdf_dir: Path ,output_root:Path,R_obj
         str: 日志信息字符串，表示处理过程中的状态或错误信息。
     """
     Research_object = R_object
-        # 初始化 Qwen 客户端
+    # 初始化 Qwen 客户端
     client = OpenAI(
         api_key=os.getenv("QWEN_API_KEY"),
         base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
@@ -33,11 +33,11 @@ def process_single_pdf(document_name: str, pdf_dir: Path ,output_root:Path,R_obj
     pdf_path = pdf_dir / f"{document_name}.pdf"
     if not pdf_path.exists():
         logger.error(f"[跳过] 文件不存在: {pdf_path}")
-        return ' '
+        return f"[跳过] 文件不存在: {pdf_path}"
 
     try:
         # 上传 PDF 文件
-        file_obj = client.files.create(file=pdf_path, purpose="file-extract") # type: ignore
+        file_obj = client.files.create(file=pdf_path, purpose="file-extract")  # type: ignore
         file_id = file_obj.id
         logger.info(f"[上传成功] {document_name} → file-id: {file_id}")
 
@@ -58,20 +58,24 @@ def process_single_pdf(document_name: str, pdf_dir: Path ,output_root:Path,R_obj
         for chunk in completion:
             if chunk.choices and chunk.choices[0].delta.content:
                 full_content += chunk.choices[0].delta.content
-        
-        #修复long模型不会转换latex标识符的问题        
+
+        # 修复 long 模型不会转换 latex 标识符的问题
         full_content = full_content.replace('\\[', '$').replace('\\]', '$')
-        
+
         # 保存为 Markdown 文件
         md_path = output_root / f"{document_name}.md"
         with open(md_path, "w", encoding="utf-8") as f:
             f.write(f"# 论文总结 - {document_name}\n\n")
             f.write(full_content.strip())
 
-        logger.info(f"[完成] {document_name} 总结保存至 {md_path.name}")
+        success_msg = f"[完成] {document_name} 总结保存至 {md_path.name}"
+        logger.info(success_msg)
+        return success_msg
 
     except Exception as e:
-        logger.error(f"[错误] {document_name} 处理失败: {e}")
+        error_msg = f"[错误] {document_name} 处理失败: {e}"
+        logger.error(error_msg)
+        return error_msg  # 确保异常时也返回字符串
 
 def summarize_all_documents(document_list: List[str], pdf_dir: Path,  output_dir: Path  , R_object: str, max_workers: int = 4 ):
     """
