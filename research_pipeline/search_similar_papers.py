@@ -93,9 +93,11 @@ def search_similar(query: str, data_folder: str, top_k: int = 5) -> List[dict]:
         query_vec = get_query_embedding(query)
     elif Embedding_Model_select == 2:
         embedding_tensor = get_embedding_bge_m3(query)
-        query_vec = embedding_tensor.cpu().tolist()
+        query_vec = np.array(embedding_tensor.cpu().tolist())
     elif Embedding_Model_select == 3:
-        query_vec = get_query_embedding_bgem3(query)
+        query_vec_list = get_query_embedding_bgem3(query)
+        # get_query_embedding_bgem3 returns a list of embeddings, use the first one
+        query_vec = np.array(query_vec_list[0]) if query_vec_list else np.array([])
     
     papers = load_all_embeddings(Path(data_folder))
 
