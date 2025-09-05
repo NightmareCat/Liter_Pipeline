@@ -14,6 +14,15 @@ model = model.to(device)
 
 # 向量生成
 def get_embedding_bge_m3(texts):
+    """
+    使用BGE-M3模型生成文本的向量表示
+    
+    参数:
+        texts (str or list): 输入的文本字符串或文本列表
+        
+    返回:
+        torch.Tensor: 归一化后的文本向量表示，形状为(batch_size, embedding_dim)
+    """
     if isinstance(texts, str):
         texts = [texts]
     inputs = tokenizer(texts, return_tensors="pt", truncation=True, padding=True)

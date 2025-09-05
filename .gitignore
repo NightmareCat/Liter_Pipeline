@@ -3,6 +3,7 @@ venv/
 temp/
 model_cache/
 packages/
+3gpp/
 
 .env
 

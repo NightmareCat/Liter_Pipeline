@@ -10,11 +10,18 @@ from log_init import setup_logger
 
 logger = setup_logger(__name__)  # 初始化log信息
 
-
 def process_single_pdf(document_name: str, pdf_dir: Path ,output_root:Path,R_object:str) -> str:
     """
-    对单个 PDF 进行上传、总结，并输出 Markdown 文件
-    返回日志字符串
+    对单个 PDF 进行上传、总结，并输出 Markdown 文件。
+
+    参数:
+        document_name (str): PDF 文件名（不含扩展名）。
+        pdf_dir (Path): 存放 PDF 文件的目录路径。
+        output_root (Path): 输出 Markdown 文件的根目录路径。
+        R_object (str): 研究对象名称，用于构建提示词。
+
+    返回:
+        str: 日志信息字符串，表示处理过程中的状态或错误信息。
     """
     Research_object = R_object
         # 初始化 Qwen 客户端
@@ -68,7 +75,17 @@ def process_single_pdf(document_name: str, pdf_dir: Path ,output_root:Path,R_obj
 
 def summarize_all_documents(document_list: List[str], pdf_dir: Path,  output_dir: Path  , R_object: str, max_workers: int = 4 ):
     """
-    多线程方式并发处理文档
+    多线程方式并发处理文档列表中的所有文档
+    
+    参数:
+        document_list (List[str]): 需要处理的文档文件名列表
+        pdf_dir (Path): PDF文档所在的目录路径
+        output_dir (Path): 处理结果输出的目录路径
+        R_object (str): 处理过程中需要使用的R对象名称
+        max_workers (int): 最大并发线程数，默认为4
+    
+    返回值:
+        无返回值，处理结果会输出到指定目录并打印处理状态
     """
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         future_to_doc = {

@@ -45,6 +45,7 @@ st.title(" 相似论文智能检索系统")
 
 # 主功能：运行 search_similar
 if run_button:
+    """运行匹配按钮"""
     with st.spinner("正在匹配中，请稍候..."):
         try:
             scored = search_similar(research_object, database_dir, top_k)
@@ -56,6 +57,7 @@ if run_button:
             st.session_state.search_done = False
 
 if confirm_button:
+    """确认选择按钮"""
     selected = st.session_state.selected_docs
     if selected:
         print(f"\n 你选择了以下{len(selected)}篇文档进行分析：\n")
@@ -66,6 +68,7 @@ if confirm_button:
         print("\n⚠️ 你没有选择任何文档。")
 
 if summary_button:
+    """总结按钮"""
     selected = st.session_state.selected_docs
     print(f"\n 调研课题：{research_object}\n")
     output_root = divideMD(selected, research_object)   #将N篇文章输出结构化结果
@@ -107,4 +110,3 @@ if st.session_state.search_done and st.session_state.scored_results:
         st.markdown("**最相关段落：**")
         st.info(item["best_paragraph"])
         st.divider()
-
