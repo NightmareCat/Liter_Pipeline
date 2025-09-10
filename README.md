@@ -121,44 +121,6 @@ python database_main.py
 streamlit run streamlit_main.py
 ```
 
-### 文献处理流程
-
-#### 1. PDF解析
-```bash
-python pipeline/parse_pdf.py
-```
-
-#### 2. 摘要生成
-```bash
-# 使用Qwen生成摘要
-python pipeline/summarize_with_qwen_long.py
-
-# 使用DeepSeek生成摘要  
-python pipeline/summarize_with_deepseek.py
-```
-
-#### 3. 嵌入向量计算
-```bash
-# 使用BGE-M3模型
-python pipeline/get_embedding_bgem3.py
-
-# 使用Qwen模型
-python pipeline/run_embedding_qwen.py
-```
-
-#### 4. 研究分析
-```bash
-# 相似论文搜索
-python research_pipeline/search_similar_papers.py
-
-# 长文档分析
-python research_pipeline/research_long_analyse.py
-
-# 提交摘要到AI服务
-python research_pipeline/submit_summary_to_qwen.py
-python research_pipeline/submit_summary_to_deepseek.py
-```
-
 ## 项目结构
 
 ```
