@@ -68,6 +68,9 @@ def divideMD(selected, Research_object_tmp):
     
     返回值:
         Path对象 - 输出目录的路径
+        
+    calling:
+    research_long_analyse
     """
     # 输出目录：research_output/20250521
     today = datetime.today().strftime("%m%d-%H%M")
@@ -93,6 +96,10 @@ def summarize_folder_to_report(folder_path: Path, research_topic: str):
     Args:
         folder_path (Path): 包含 .md 文件的目录路径（Path类型）
         research_topic (str): 调研主题
+        
+    calling:
+    submit_summary_to_qwen/submit_summary_to_deepseek
+    
     """
     if not folder_path.exists() or not folder_path.is_dir():
         logger.error(f"❌ 路径不存在或不是文件夹: {folder_path}")

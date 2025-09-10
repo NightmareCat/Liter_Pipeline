@@ -1,42 +1,21 @@
-# pipeline/summarize_with_qwen.py
-import os
-import time
+# pipeline/summarize_with_qwen_long.py
+"""
+Qwen长文本PDF摘要生成模块
+
+该模块使用阿里云通义千问API对PDF文献进行摘要生成，
+支持长文本处理和文件上传解析功能。
+"""
+
 from pathlib import Path
-from openai import OpenAI
-from dotenv import load_dotenv
 from log_init import setup_logger 
+from utils.api_clients import api_manager, wait_for_file_ready
 
-load_dotenv()
-logger = setup_logger(__name__)  # 初始化log信息
-client = OpenAI(
-    api_key=os.getenv("QWEN_API_KEY"),
-    base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
-)
+logger = setup_logger(__name__)  # 初始化日志记录器
 
-def wait_for_file_ready(client, file_id, max_retries=30, interval=2):
-    """
-    等待文件处理完成
-    
-    该函数通过轮询方式检查文件状态，直到文件处理完成或达到最大重试次数
-    
-    参数:
-        client: 文件服务客户端对象，用于调用文件相关API
-        file_id: 文件唯一标识符，用于查询文件状态
-        max_retries: 最大重试次数，默认为30次
-        interval: 轮询间隔时间(秒)，默认为2秒
-    
-    返回值:
-        bool: 如果文件在重试次数内处理完成返回True，否则返回False
-    """
-    for _ in range(max_retries):
-        try:
-            file_info = client.files.retrieve(file_id)
-            if getattr(file_info, "status", "") == "processed":
-                return True
-        except Exception:
-            pass
-        time.sleep(interval)
-    return False
+'''
+仅离线模式使用，已注释
+calling by research_long_analyse.py
+'''
 
 def upload_and_summarize_pdf(pdf_path: Path, output_dir: Path, prompt: str):
     """
@@ -54,6 +33,7 @@ def upload_and_summarize_pdf(pdf_path: Path, output_dir: Path, prompt: str):
         无返回值。摘要内容将被写入到output_dir下的summary.md文件中。
     """
     logger.info(f"[Qwen] Uploading {pdf_path.name} ...")
+    client = api_manager.get_qwen_client()
     file_object = client.files.create(file=pdf_path, purpose="file-extract") # type: ignore
     file_id = file_object.id
 

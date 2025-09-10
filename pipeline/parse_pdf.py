@@ -7,6 +7,11 @@ from paddleocr import PPStructure, draw_structure_result # type: ignore
 from utils.table_utils import html_table_to_markdown
 from utils.text_utils import clean_text, auto_title_format, smart_paragraph_split
 
+'''
+用于离线环境下的OCR
+PDF转Markdown
+在线模式下不调用
+'''
 
 def parse_pdf_to_markdown(config: dict) -> str:
 

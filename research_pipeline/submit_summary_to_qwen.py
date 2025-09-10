@@ -1,7 +1,6 @@
-import os
-from openai import OpenAI
 from typing import List
 from prompts import final_prompt
+from utils.api_clients import api_manager
 
 
 def submit_summary_to_qwen(Research_object: str, markdown_chunks: List[str]) -> str:
@@ -14,11 +13,10 @@ def submit_summary_to_qwen(Research_object: str, markdown_chunks: List[str]) -> 
 
     Returns:
         str: 调研报告的 Markdown 格式文本
+    
+    calling by research_main.summarize_folder_to_report
     """
-    client = OpenAI(
-    api_key=os.getenv("QWEN_API_KEY"),
-    base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
-    )   
+    client = api_manager.get_qwen_client()
     merged_md = "\n\n".join(markdown_chunks)
 
     # 构建Prompt
@@ -37,7 +35,7 @@ def submit_summary_to_qwen(Research_object: str, markdown_chunks: List[str]) -> 
 
     # 发起 API 请求
     completion = client.chat.completions.create(
-        model="qwen-max-latest",
+        model="qwen-long-latest",
         messages=[
             {'role': 'system', 'content': '你是一个科研分析助手，请以Markdown格式输出调研报告。'},
             {'role': 'user', 'content': user_prompt}

@@ -2,13 +2,15 @@ from importlib.machinery import PathFinder
 import os
 from pathlib import Path
 from datetime import datetime
-from openai import OpenAI
 from typing import List
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from prompts import devide_prompt
 from log_init import setup_logger 
+from utils.api_clients import api_manager
 
 logger = setup_logger(__name__)  # 初始化log信息
+
+#summarize_all_documents calling by research_main.divideMD
 
 def process_single_pdf(document_name: str, pdf_dir: Path, output_root: Path, R_object: str) -> str:
     """
@@ -24,11 +26,8 @@ def process_single_pdf(document_name: str, pdf_dir: Path, output_root: Path, R_o
         str: 日志信息字符串，表示处理过程中的状态或错误信息。
     """
     Research_object = R_object
-    # 初始化 Qwen 客户端
-    client = OpenAI(
-        api_key=os.getenv("QWEN_API_KEY"),
-        base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
-    )
+    # 获取 Qwen 客户端
+    client = api_manager.get_qwen_client()
 
     pdf_path = pdf_dir / f"{document_name}.pdf"
     if not pdf_path.exists():
@@ -43,7 +42,7 @@ def process_single_pdf(document_name: str, pdf_dir: Path, output_root: Path, R_o
 
         # 调用 qwen-long 进行内容总结
         completion = client.chat.completions.create(
-            model="qwen-long",
+            model="qwen-long-latest",
             messages=[
                 {'role': 'system', 'content': '你是一个具有通信领域专业背景的研究助手，请你参考专业知识协助我进行文献整理'},
                 {'role': 'system', 'content': f'fileid://{file_id}'},
@@ -116,6 +115,3 @@ if __name__ == "__main__":
     output_root.mkdir(parents=True, exist_ok=True)
 
     summarize_all_documents(example_documents, pdf_directory, max_workers=8, output_dir = output_root, R_object = Research_object)
-
-
-

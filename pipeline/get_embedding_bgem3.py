@@ -1,7 +1,8 @@
 from transformers import AutoTokenizer, AutoModel # type: ignore
 import torch
 
-# 加载模型（自动下载到 ~/.cache/huggingface）
+# 加载模型（运行到该模块后，若发现没有适用模型，自动下载到 ~/.cache/huggingface）
+# 预计占用下载资源：5GB
 model_name = "BAAI/bge-m3"
 cache_dir = "./model_cache"  # 自定义路径
 
@@ -22,6 +23,8 @@ def get_embedding_bge_m3(texts):
         
     返回:
         torch.Tensor: 归一化后的文本向量表示，形状为(batch_size, embedding_dim)
+        
+    calling by research_pipeline/search_similar_papers.py
     """
     if isinstance(texts, str):
         texts = [texts]

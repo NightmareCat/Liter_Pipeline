@@ -1,60 +1,21 @@
 # search_similar_papers.py
 
-import os
 import json
 import numpy as np
 from pathlib import Path
-from openai import OpenAI
-from dotenv import load_dotenv
-from typing import List, Tuple
-import requests
-from pipeline.get_embedding_bgem3 import get_embedding_bge_m3
+from typing import List, Tuple, Dict, Any
 
-load_dotenv()
-Embedding_Model_select = 2 # 1-qwen embedding3（百炼）  2- BGE-M3(本地)  3-BGE-M3(硅基)
+from config.settings import MODEL_SELECTION
+from utils.api_clients import get_embedding_vectors
 
-# 百炼Qwen3 embedding3 模型
-def get_query_embedding(query: str) -> np.ndarray:
-    client = OpenAI(
-            api_key=os.getenv("QWEN_API_KEY"),
-            base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
-        )
-    response = client.embeddings.create(
-        input=query,
-        model="text-embedding-v3"
-    )
-    return np.array(response.data[0].embedding)
-
-def get_query_embedding_bgem3(query:str) :
-    url = "https://api.siliconflow.cn/v1/embeddings"
-    api_key=os.getenv("SOLID_API_KRY")
-
-    payload = {
-        "model": "BAAI/bge-m3",
-        "input": query,
-        "encoding_format": "float"
-    }
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json"
-    }
-
-    response = requests.request("POST", url, json=payload, headers=headers)
-    if response.status_code == 200:
-        response_json = response.json()
-        # 提取所有 embedding
-        embeddings = [item["embedding"] for item in response_json["data"]]
-    else:
-        print("Error:", response.status_code, response.text)
-        embeddings = []
-    return embeddings
-
+'''
+calling by streamlit_main.py
+'''
 
 # 余弦相似运算
 def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
-#
 def load_all_embeddings(folder: Path) -> List[Tuple[str, str, List[Tuple[str, np.ndarray]]]]:
     """
     加载所有论文的 embedding
@@ -82,22 +43,15 @@ def load_all_embeddings(folder: Path) -> List[Tuple[str, str, List[Tuple[str, np
 
     return results
 
-def search_similar(query: str, data_folder: str, top_k: int = 5) -> List[dict]:
+def search_similar(query: str, data_folder: str, top_k: int = 5) -> List[Dict[str, Any]]:
     """
     calling by streamlit_main.py
     对给定查询进行匹配，返回结构化结果。
     每个结果包含：论文名、相似度、最相关段落。
     """
-    # query_vec = get_query_embedding(query)
-    if Embedding_Model_select == 1:
-        query_vec = get_query_embedding(query)
-    elif Embedding_Model_select == 2:
-        embedding_tensor = get_embedding_bge_m3(query)
-        query_vec = np.array(embedding_tensor.cpu().tolist())
-    elif Embedding_Model_select == 3:
-        query_vec_list = get_query_embedding_bgem3(query)
-        # get_query_embedding_bgem3 returns a list of embeddings, use the first one
-        query_vec = np.array(query_vec_list[0]) if query_vec_list else np.array([])
+    # 使用统一的API客户端获取查询向量
+    embedding_vectors = get_embedding_vectors(query, MODEL_SELECTION["embedding"])
+    query_vec = embedding_vectors[0] if embedding_vectors else np.array([])
     
     papers = load_all_embeddings(Path(data_folder))
 

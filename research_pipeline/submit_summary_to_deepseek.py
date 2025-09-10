@@ -1,12 +1,11 @@
-import os
-from openai import OpenAI
 from typing import List
 from prompts import final_prompt
+from utils.api_clients import api_manager
 
 
 def submit_summary_to_deepseek(Research_object: str, markdown_chunks: List[str]) -> str:
     """
-    将多篇 markdown 总结内容提交给 Qwen-Long 模型，生成一篇综合性调研报告。
+    将多篇 markdown 总结内容提交给 deepseek 模型，生成一篇综合性调研报告。
     
     Args:
         research_object (str): 调研主题，例如 "提升卫星的接入成功率"
@@ -14,11 +13,10 @@ def submit_summary_to_deepseek(Research_object: str, markdown_chunks: List[str])
 
     Returns:
         str: 调研报告的 Markdown 格式文本
+        
+    calling by research_main.summarize_folder_to_report
     """
-    client = OpenAI(
-    api_key=os.getenv("DEEPSEEK_API_KEY"),
-    base_url="https://api.deepseek.com/v1"
-    )   
+    client = api_manager.get_deepseek_client()
     merged_md = "\n\n".join(markdown_chunks)
 
     # 构建Prompt
